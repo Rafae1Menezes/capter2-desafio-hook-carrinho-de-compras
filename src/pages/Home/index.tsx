@@ -1,58 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { MdAddShoppingCart } from 'react-icons/md';
+import React, { useState, useEffect } from 'react'
+import { MdAddShoppingCart } from 'react-icons/md'
 
-import { ProductList } from './styles';
-import { api } from '../../services/api';
-import { formatPrice } from '../../util/format';
-import { useCart } from '../../hooks/useCart';
+import { ProductList } from './styles'
+import { api } from '../../services/api'
+import { formatPrice } from '../../util/format'
+import { useCart } from '../../hooks/useCart'
 
 interface Product {
-  id: number;
-  title: string;
-  price: number;
-  image: string;
+   id: number
+   title: string
+   price: number
+   image: string
 }
 
 interface ProductFormatted extends Product {
-  priceFormatted: string;
+   priceFormatted: string
 }
 
 interface CartItemsAmount {
-  [key: number]: number;
+   [key: number]: number
 }
 
 const Home = (): JSX.Element => {
-  const [products, setProducts] = useState<ProductFormatted[]>([]);
-  const { addProduct, cart } = useCart();
+   const [products, setProducts] = useState<ProductFormatted[]>([])
+   const { addProduct, cart } = useCart()
 
-  const cartItemsAmount = cart.reduce((sumAmount, product) => {
-
+   const cartItemsAmount = cart.reduce((sumAmount, product) => {
       sumAmount[product.id] = (sumAmount[product.id] || 0) + 1
       return sumAmount
+   }, {} as CartItemsAmount)
 
-  }, {} as CartItemsAmount)
+   useEffect(() => {
+      async function loadProducts() {
+         const { data } = await api('/products')
+         const dataFormated = data.map((product: ProductFormatted) => {
+            product.priceFormatted = formatPrice(product.price)
+            return product
+         })
+         setProducts(dataFormated)
+      }
 
-  useEffect(() => {
-    async function loadProducts() {
-      const { data } = await api('/products')
-      const dataFormated = data.map( (product: ProductFormatted)=> {
-         product.priceFormatted = formatPrice(product.price)
-         return product
-      })
-      setProducts(dataFormated)
-    }
+      loadProducts()
+   }, [])
 
-    loadProducts();
-  }, []);
+   function handleAddProduct(id: number) {
+      addProduct(id)
+   }
 
-  function handleAddProduct(id: number) {
-    // TODO
-  }
-
-  return (
-    <ProductList>
-      {
-         products.map(product => (
+   return (
+      <ProductList>
+         {products.map(product => (
             <li>
                <img src={product.image} alt={product.title} />
                <strong>{product.title}</strong>
@@ -70,10 +67,9 @@ const Home = (): JSX.Element => {
                   <span>ADICIONAR AO CARRINHO</span>
                </button>
             </li>
-         ))
-      }
-    </ProductList>
-  );
-};
+         ))}
+      </ProductList>
+   )
+}
 
-export default Home;
+export default Home
