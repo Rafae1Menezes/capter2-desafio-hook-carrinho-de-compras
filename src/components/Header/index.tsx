@@ -5,14 +5,11 @@ import { MdShoppingBasket } from 'react-icons/md';
 import logo from '../../assets/images/logo.svg';
 import { Container, Cart } from './styles';
 import { useCart } from '../../hooks/useCart';
-import { Product } from '../../types';
 
 const Header = (): JSX.Element => {
    const { cart } = useCart();
  
-   let ids: number[] = []
-   cart.forEach((produt)=>{!ids.includes(produt.id) && ids.push(produt.id)})
-   const cartSize = ids.length
+   const cartSize = cart.length
 
   return (
     <Container>
